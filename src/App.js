@@ -65,9 +65,17 @@ const App = () => {
             videoRef.current.offsetHeight
           );
 
-          /* TODO : make tensor from frame and do preprocessing
-          const tensor = ort.Tensor()
-          console.log(frame.data.length); */
+          const rgbFrame = [];
+          for (let i = 0; i < frame.data.length / 4; i++) {
+            rgbFrame.push(frame.data[i * 4 + 0]);
+            rgbFrame.push(frame.data[i * 4 + 1]);
+            rgbFrame.push(frame.data[i * 4 + 2]);
+          }
+
+          // TODO : do preprocessing
+          // migrate to numjs https://github.com/nicolaspanel/numjs
+          const tensor = new ort.Tensor("float32", rgbFrame, [frame.width, frame.height, 3]);
+          console.log(tensor);
 
           requestAnimationFrame(() => drawFrames()); // get another frame
         };
