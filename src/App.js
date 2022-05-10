@@ -9,7 +9,6 @@ const App = () => {
   const [loading, setLoading] = useState(true);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
-  const [canvasSize, setCanvasSize] = useState([0, 0]);
 
   // configs
   const modelName = "yolov5n";
@@ -55,35 +54,31 @@ const App = () => {
         webcam.open(videoRef, () => detectFrame(yolov5));
       }); */
         const webcam = new Webcam();
-        const drawFrames = () => {
+
+        const drawFrames = async (model) => {
           const ctx = canvasRef.current.getContext("2d");
-          ctx.drawImage(videoRef.current, 0, 0);
-          const frame = ctx.getImageData(
-            0,
-            0,
-            videoRef.current.offsetWidth,
-            videoRef.current.offsetHeight
-          );
+          ctx.drawImage(videoRef.current, 0, 0, 640, 640);
+          const frame = ctx.getImageData(0, 0, 640, 640);
 
           const rgbFrame = [];
           for (let i = 0; i < frame.data.length / 4; i++) {
-            rgbFrame.push(frame.data[i * 4 + 0]);
-            rgbFrame.push(frame.data[i * 4 + 1]);
-            rgbFrame.push(frame.data[i * 4 + 2]);
+            rgbFrame.push(frame.data[i * 4 + 0] / 255.0);
+            rgbFrame.push(frame.data[i * 4 + 1] / 255.0);
+            rgbFrame.push(frame.data[i * 4 + 2] / 255.0);
           }
 
-          // TODO : do preprocessing
-          // migrate to numjs https://github.com/nicolaspanel/numjs
-          const tensor = new ort.Tensor("float32", rgbFrame, [frame.width, frame.height, 3]);
-          console.log(tensor);
+          // TODO : Fixing input dim problem
+          const tensor = new ort.Tensor("float32", rgbFrame, [1, frame.width, frame.height, 3]);
+          const results = await model.run({ images: tensor });
+          console.log(results);
 
           requestAnimationFrame(() => drawFrames()); // get another frame
         };
 
         webcam.open(videoRef, () => {
           setLoading(false);
-          setCanvasSize([videoRef.current.offsetWidth, videoRef.current.offsetHeight]);
-          drawFrames();
+          drawFrames(yolov5);
+          console.log(yolov5);
         });
       }
     );
@@ -96,7 +91,7 @@ const App = () => {
 
       <div className="content">
         <video autoPlay playsInline muted ref={videoRef} />
-        <canvas width={canvasSize[0]} height={canvasSize[1]} ref={canvasRef} />
+        <canvas width={640} height={640} ref={canvasRef} />
       </div>
     </div>
   );
