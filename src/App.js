@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import * as ort from "onnxruntime-web";
 import Loader from "./components/loader";
-import { Webcam } from "./utils/webcam";
 /* import { renderBoxes } from "./utils/renderBox"; */
 import "./style/App.css";
+import LocalImageButton from "./components/local-image";
 
 const App = () => {
+  const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
-  const videoRef = useRef(null);
+  const imageRef = useRef(null);
   const canvasRef = useRef(null);
 
   // configs
@@ -41,47 +42,34 @@ const App = () => {
     tf.engine().endScope();
   }; */
 
-  useEffect(() => {
-    ort.InferenceSession.create(`${window.location.origin}/model/${modelName}.onnx`).then(
-      (yolov5) => {
-        // TODO : Warmup the model before using real data.
-        /* const dummyInput = tf.ones(yolov5.inputs[0].shape);
-      await yolov5.executeAsync(dummyInput).then((warmupResult) => {
-        tf.dispose(warmupResult);
-        tf.dispose(dummyInput);
-
-        setLoading({ loading: false, progress: 1 });
-        webcam.open(videoRef, () => detectFrame(yolov5));
-      }); */
-        const webcam = new Webcam();
-
-        const drawFrames = async (model) => {
-          const ctx = canvasRef.current.getContext("2d");
-          ctx.drawImage(videoRef.current, 0, 0, 640, 640);
-          const frame = ctx.getImageData(0, 0, 640, 640);
-
-          const rgbFrame = [];
-          for (let i = 0; i < frame.data.length / 4; i++) {
-            rgbFrame.push(frame.data[i * 4 + 0] / 255.0);
-            rgbFrame.push(frame.data[i * 4 + 1] / 255.0);
-            rgbFrame.push(frame.data[i * 4 + 2] / 255.0);
-          }
-
-          // TODO : Fixing input dim problem
-          const tensor = new ort.Tensor("float32", rgbFrame, [1, frame.width, frame.height, 3]);
-          const results = await model.run({ images: tensor });
-          console.log(results);
-
-          requestAnimationFrame(() => drawFrames()); // get another frame
-        };
-
-        webcam.open(videoRef, () => {
-          setLoading(false);
-          drawFrames(yolov5);
-          console.log(yolov5);
-        });
-      }
+  const detectImage = async () => {
+    let mat = cv.imread(imageRef.current);
+    let matC3 = new cv.Mat(640, 640, cv.CV_8UC3);
+    cv.cvtColor(mat, matC3, cv.COLOR_RGBA2BGR);
+    let input = cv.blobFromImage(
+      matC3,
+      1,
+      new cv.Size(640, 640),
+      new cv.Scalar(127.5, 127.5, 127.5),
+      true
     );
+    mat.delete();
+    matC3.delete();
+
+    const tensor = new ort.Tensor("float32", input.data32F, [1, 3, 640, 640]);
+    const results = await session.run({ images: tensor });
+    console.log(results);
+  };
+
+  useEffect(() => {
+    cv["onRuntimeInitialized"] = () => {
+      ort.InferenceSession.create(`${window.location.origin}/model/${modelName}.onnx`).then(
+        (yolov5) => {
+          setSession(yolov5);
+          setLoading(false);
+        }
+      );
+    };
   }, []);
 
   return (
@@ -90,9 +78,11 @@ const App = () => {
       {loading ? <Loader>Getting things ready...</Loader> : null}
 
       <div className="content">
-        <video autoPlay playsInline muted ref={videoRef} />
-        <canvas width={640} height={640} ref={canvasRef} />
+        <img ref={imageRef} src="#" alt="" />
+        <canvas id="canvas" width={640} height={640} ref={canvasRef} />
       </div>
+
+      <LocalImageButton imageRef={imageRef} callback={detectImage} />
     </div>
   );
 };

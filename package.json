@@ -23,7 +23,10 @@
     "extends": [
       "react-app",
       "react-app/jest"
-    ]
+    ],
+    "globals": {
+      "cv": true
+    }
   },
   "browserslist": {
     "production": [
