@@ -1,10 +1,3 @@
-/**
- * Non Max Suppression algorithm
- * implemented from erceth/non-maximum-suppression : https://github.com/erceth/non-maximum-suppression
- * @param {Array} foundLocations founded boxes
- * @param {Number} overlapThresh overlap threshold
- * @returns {Array} selected boxes
- */
 const nms = (foundLocations, overlapThresh) => {
   if (foundLocations.length === 0) {
     return [];
@@ -56,4 +49,59 @@ const nms = (foundLocations, overlapThresh) => {
   return pick;
 };
 
-export { nms };
+const argsort = (arr) => {
+  let decor = (v, i) => [v, i];
+  let undecor = (a) => a[1];
+  return arr.map(decor).sort().map(undecor);
+};
+
+/**
+ * Non Max Suppression algorithm
+ * implemented from erceth/non-maximum-suppression : https://github.com/erceth/non-maximum-suppression
+ * @param {Array} foundLocations founded boxes
+ * @param {Number} overlapThresh overlap threshold
+ * @returns {Array} selected boxes
+ */
+const NMSFast = (foundLocations, overlapThresh) => {
+  if (foundLocations.length === 0) return [];
+
+  const pick = [],
+    x1 = [],
+    x2 = [],
+    y1 = [],
+    y2 = [],
+    area = [];
+
+  foundLocations.forEach((box) => {
+    x1.push(box[0]);
+    y1.push(box[1]);
+    x2.push(box[0] + box[2]);
+    y2.push(box[1] + box[3]);
+    area.push((box[2] + 1) * (box[3] + 1));
+  });
+
+  let idxs = argsort(y2);
+
+  while (idxs.length > 0) {
+    let last = idxs.length - 1;
+    let i = idxs[last];
+    pick.push(i);
+
+    const xx1 = Math.max(x1[i], ...idxs.slice(0, last).map((e) => x1[e])),
+      yy1 = Math.max(y1[i], ...idxs.slice(0, last).map((e) => y1[e])),
+      xx2 = Math.min(x2[i], ...idxs.slice(0, last).map((e) => x2[e])),
+      yy2 = Math.min(y2[i], ...idxs.slice(0, last).map((e) => y2[e]));
+
+    const w = Math.max(0, xx2 - xx1 + 1),
+      h = Math.max(0, yy2 - yy1 + 1);
+    const overlap = idxs.slice(0, last).map((e) => (w * h) / area[e]);
+
+    idxs = idxs.filter((e, index) => {
+      if (index === last || overlap[index] > overlapThresh) return false;
+      return true;
+    });
+  }
+  return pick;
+};
+
+export { nms, NMSFast };
