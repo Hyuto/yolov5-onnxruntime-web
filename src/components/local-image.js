@@ -26,13 +26,27 @@ const LocalImageButton = ({ imageRef, callback }) => {
         }}
       />
 
-      <button
-        onClick={() => {
-          inputImage.current.click();
-        }}
-      >
-        Open local image
-      </button>
+      <div>
+        <button
+          style={{ margin: "0 5px" }}
+          onClick={() => {
+            inputImage.current.click();
+          }}
+        >
+          Open local image
+        </button>
+        <button
+          style={{ margin: "0 5px" }}
+          onClick={() => {
+            inputImage.current.value = "";
+            imageRef.current.src = "#";
+            URL.revokeObjectURL(image);
+            setImage(null);
+          }}
+        >
+          Close image
+        </button>
+      </div>
     </>
   );
 };
