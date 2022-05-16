@@ -8,7 +8,7 @@
 }
 
 .App > .content {
-  margin-top: 5px;
+  margin: 5px 0;
   position: relative;
 }
 
@@ -28,4 +28,21 @@
 h2,
 p {
   margin-bottom: 5px;
+}
+
+button {
+  text-decoration: none;
+  color: white;
+  background-color: black;
+  border: 2px solid black;
+  margin: 3px 5px;
+  padding: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  color: black;
+  background-color: white;
+  border: 2px solid black;
 }

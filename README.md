@@ -1,7 +1,7 @@
 # YOLOv5 onnxruntime-web
 
-Object Detection application right in your browser. Serving YOLOv5 in browser using onnxruntime-web
-with `wasm` backend.
+Object Detection application right in your browser.
+Serving YOLOv5 in browser using onnxruntime-web with `wasm` backend.
 
 **Setup**
 
