@@ -1,5 +1,3 @@
-import labels from "./labels.json";
-
 /**
  * Render prediction boxes
  * @param {React.MutableRefObject} canvasRef canvas tag reference
@@ -8,7 +6,7 @@ import labels from "./labels.json";
  * @param {Array} scores_data scores array
  * @param {Array} classes_data class array
  */
-export const renderBoxes = (canvasRef, boxes_data, scores_data, classes_data) => {
+export const renderBoxes = (canvasRef, boxes_data, scores_data, classes_data, labels) => {
   const ctx = canvasRef.current.getContext("2d");
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // clean canvas
 
