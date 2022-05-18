@@ -1,5 +1,3 @@
-import labels from "./labels.json";
-
 /**
  * Render prediction boxes
  * @param {React.MutableRefObject} canvasRef canvas tag reference
@@ -8,7 +6,7 @@ import labels from "./labels.json";
  * @param {Array} scores_data scores array
  * @param {Array} classes_data class array
  */
-export const renderBoxes = (canvasRef, boxes_data, scores_data, classes_data) => {
+export const renderBoxes = (canvasRef, boxes, labels) => {
   const ctx = canvasRef.current.getContext("2d");
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // clean canvas
 
@@ -17,10 +15,10 @@ export const renderBoxes = (canvasRef, boxes_data, scores_data, classes_data) =>
   ctx.font = font;
   ctx.textBaseline = "top";
 
-  for (let i = 0; i < scores_data.length; ++i) {
-    const klass = labels[classes_data[i]];
-    const score = (scores_data[i] * 100).toFixed(1);
-    const [x1, y1, width, height] = boxes_data[i];
+  boxes.forEach((box) => {
+    const klass = labels[box.classId];
+    const score = (box.probability * 100).toFixed(1);
+    const [x1, y1, width, height] = box.bounding;
 
     // Draw the bounding box.
     ctx.strokeStyle = "#00FF00";
@@ -36,5 +34,5 @@ export const renderBoxes = (canvasRef, boxes_data, scores_data, classes_data) =>
     // Draw labels
     ctx.fillStyle = "#ffffff";
     ctx.fillText(klass + " - " + score + "%", x1 - 1, y1 - (textHeight + 2));
-  }
+  });
 };
