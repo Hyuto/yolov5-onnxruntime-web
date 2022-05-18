@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import * as ort from "onnxruntime-web";
 import Loader from "./components/loader";
 import LocalImageButton from "./components/local-image";
-import { IOU, NMS } from "./utils/nms";
+import { NMS } from "./utils/nms";
 import { renderBoxes } from "./utils/renderBox";
 import labels from "./utils/labels.json";
 import "./style/App.css";
@@ -15,9 +15,9 @@ const App = () => {
 
   // configs
   const modelName = "yolov5n";
-  const confidenceThreshold = 0.3;
+  const confidenceThreshold = 0.25;
   const classThreshold = 0.5;
-  const nmsThreshold = 0.6;
+  const nmsThreshold = 0.5;
 
   const detectImage = async () => {
     const mat = cv.imread(imageRef.current);
@@ -48,21 +48,18 @@ const App = () => {
 
       if (confidence >= confidenceThreshold && maxClassProb >= classThreshold) {
         const [x, y, w, h] = data.slice(0, 4);
-        boxes.push([x - 0.5 * w, y - 0.5 * h, w, h]);
+        boxes.push({
+          classId: classId,
+          probability: maxClassProb,
+          confidence: confidence,
+          bounding: [x - 0.5 * w, y - 0.5 * h, w, h],
+        });
       }
     }
 
-    // Draw boxes
-    // renderBoxes(canvasRef, boxes, probabilities, classIds);
-    const test = NMS(boxes, nmsThreshold);
-    const ctx = canvasRef.current.getContext("2d");
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // clean canvas
-    ctx.strokeStyle = "#00FF00";
-    ctx.lineWidth = 2;
-
-    test.forEach(({ x1, y1, width, height }) => {
-      ctx.strokeRect(x1, y1, width, height);
-    });
+    // Non Maximum Suppression algorithm
+    const selectedBoxes = NMS(boxes, nmsThreshold);
+    renderBoxes(canvasRef, selectedBoxes, labels); // Draw boxes
   };
 
   useEffect(() => {
