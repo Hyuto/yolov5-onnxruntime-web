@@ -1,10 +1,8 @@
 /**
  * Render prediction boxes
  * @param {React.MutableRefObject} canvasRef canvas tag reference
- * @param {number} threshold threshold number
- * @param {Array} boxes_data boxes array
- * @param {Array} scores_data scores array
- * @param {Array} classes_data class array
+ * @param {Array[Object]} boxes boxes array
+ * @param {Array} labels labels array
  */
 export const renderBoxes = (canvasRef, boxes, labels) => {
   const ctx = canvasRef.current.getContext("2d");

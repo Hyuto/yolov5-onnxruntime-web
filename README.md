@@ -1,4 +1,4 @@
-# YOLOv5 onnxruntime-web
+# YOLOv5 on onnxruntime-web
 
 Object Detection application right in your browser.
 Serving YOLOv5 in browser using onnxruntime-web with `wasm` backend.
@@ -17,10 +17,6 @@ yarn install # Install dependencies
 yarn start # Start dev server
 yarn build # Build for productions
 ```
-
-## TODO
-
-1. Apply _Non Max Suppression_ to filter boxes
 
 ## Used Technologies
 
