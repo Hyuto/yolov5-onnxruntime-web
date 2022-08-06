@@ -70,7 +70,7 @@ const App = () => {
 
   useEffect(() => {
     cv["onRuntimeInitialized"] = () => {
-      ort.InferenceSession.create(`${window.location.origin}/model/${modelName}.onnx`).then(
+      ort.InferenceSession.create(`${process.env.PUBLIC_URL}/model/${modelName}.onnx`).then(
         (yolov5) => {
           setSession(yolov5);
           setLoading(false);
@@ -81,7 +81,9 @@ const App = () => {
 
   return (
     <div className="App">
-      <h2>Object Detection Using YOLOv5 & Tensorflow.js</h2>
+      <h2>
+        Object Detection Using YOLOv5 & <code>onnxruntime-web</code>
+      </h2>
       {loading ? (
         <Loader>Getting things ready...</Loader>
       ) : (
