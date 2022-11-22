@@ -1,103 +1,122 @@
-import React, { useState, useEffect, useRef } from "react";
-import * as ort from "onnxruntime-web";
+import React, { useState, useRef } from "react";
+import { Tensor, InferenceSession } from "onnxruntime-web";
 import Loader from "./components/loader";
-import LocalImageButton from "./components/local-image";
-import { NMS } from "./utils/nms";
-import { renderBoxes } from "./utils/renderBox";
-import labels from "./utils/labels.json";
+import { detectImage } from "./utils/detect";
 import "./style/App.css";
 
 const App = () => {
   const [session, setSession] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState("Loading OpenCV.js...");
+  const [image, setImage] = useState(null);
+  const inputImage = useRef(null);
   const imageRef = useRef(null);
   const canvasRef = useRef(null);
 
-  // configs
-  const modelName = "yolov5n";
+  // Configs
+  const modelName = "yolov5n.onnx";
+  const modelInputShape = [1, 3, 640, 640];
   const confidenceThreshold = 0.25;
-  const classThreshold = 0.6;
-  const nmsThreshold = 0.5;
+  const classThreshold = 0.25;
+  const iouThreshold = 0.45; // overlap threshold
 
-  /**
-   * Callback function to detect image when loaded
-   */
-  const detectImage = async () => {
-    const mat = cv.imread(imageRef.current); // read from img tag
-    const matC3 = new cv.Mat(640, 640, cv.CV_8UC3); // new image matrix (640 x 640)
-    cv.cvtColor(mat, matC3, cv.COLOR_RGBA2BGR); // RGBA to BGR
-    const input = cv.blobFromImage(
-      matC3,
-      1 / 255.0,
-      new cv.Size(640, 640),
-      new cv.Scalar(0, 0, 0),
-      true,
-      false
-    ); // preprocessing image matrix
-    // release
-    mat.delete();
-    matC3.delete();
+  // wait until opencv.js initialized
+  cv["onRuntimeInitialized"] = async () => {
+    // create session
+    setLoading("Loading YOLOv5 model...");
+    const yolov5 = await InferenceSession.create(`${process.env.PUBLIC_URL}/model/${modelName}`);
 
-    const tensor = new ort.Tensor("float32", input.data32F, [1, 3, 640, 640]); // to ort.Tensor
-    const { output } = await session.run({ images: tensor }); // run session and get output layer
+    // warmup model
+    setLoading("Warming up model...");
+    const tensor = new Tensor(
+      "float32",
+      new Float32Array(modelInputShape.reduce((a, b) => a * b)),
+      modelInputShape
+    );
+    await yolov5.run({ images: tensor });
 
-    const boxes = [];
-
-    // looping through output
-    for (let r = 0; r < output.data.length; r += output.dims[2]) {
-      const data = output.data.slice(r, r + output.dims[2]); // get rows
-      const scores = data.slice(5); // classes probability scores
-      const confidence = data[4]; // detection confidence
-      const classId = scores.indexOf(Math.max(...scores)); // class id of maximum probability scores
-      const maxClassProb = scores[classId]; // maximum probability scores
-
-      // filtering by thresholds
-      if (confidence >= confidenceThreshold && maxClassProb >= classThreshold) {
-        const [x, y, w, h] = data.slice(0, 4);
-        boxes.push({
-          classId: classId,
-          probability: maxClassProb,
-          confidence: confidence,
-          bounding: [x - 0.5 * w, y - 0.5 * h, w, h],
-        });
-      }
-    }
-
-    // filtering boxes using Non Maximum Suppression algorithm
-    const selectedBoxes = NMS(boxes, nmsThreshold);
-    renderBoxes(canvasRef, selectedBoxes, labels); // Draw boxes
+    setSession(yolov5);
+    setLoading(null);
   };
-
-  useEffect(() => {
-    cv["onRuntimeInitialized"] = () => {
-      ort.InferenceSession.create(`${process.env.PUBLIC_URL}/model/${modelName}.onnx`).then(
-        (yolov5) => {
-          setSession(yolov5);
-          setLoading(false);
-        }
-      );
-    };
-  }, []);
 
   return (
     <div className="App">
-      <h2>
-        Object Detection Using YOLOv5 & <code>onnxruntime-web</code>
-      </h2>
-      {loading ? (
-        <Loader>Getting things ready...</Loader>
-      ) : (
+      {loading && <Loader>{loading}</Loader>}
+      <div className="header">
+        <h1>YOLOv5 Object Detection App</h1>
         <p>
-          <code>onnxruntime-web</code> serving {modelName}
+          YOLOv5 object detection application live on browser powered by{" "}
+          <code>onnxruntime-web</code>
         </p>
-      )}
-
-      <div className="content">
-        <img ref={imageRef} src="#" alt="" />
-        <canvas id="canvas" width={640} height={640} ref={canvasRef} />
+        <p>
+          Serving : <code className="code">{modelName}</code>
+        </p>
       </div>
 
-      <LocalImageButton imageRef={imageRef} callback={detectImage} />
+      <div className="content">
+        <img
+          ref={imageRef}
+          src="#"
+          alt=""
+          style={{ display: image ? "block" : "none" }}
+          onLoad={() => {
+            detectImage(
+              imageRef.current,
+              canvasRef.current,
+              session,
+              confidenceThreshold,
+              classThreshold,
+              iouThreshold,
+              modelInputShape
+            );
+          }}
+        />
+        <canvas
+          id="canvas"
+          width={modelInputShape[2]}
+          height={modelInputShape[3]}
+          ref={canvasRef}
+        />
+      </div>
+
+      <input
+        type="file"
+        ref={inputImage}
+        accept="image/*"
+        style={{ display: "none" }}
+        onChange={(e) => {
+          // handle next image to detect
+          if (image) {
+            URL.revokeObjectURL(image);
+            setImage(null);
+          }
+
+          const url = URL.createObjectURL(e.target.files[0]); // create image url
+          imageRef.current.src = url; // set image source
+          setImage(url);
+        }}
+      />
+      <div className="btn-container">
+        <button
+          onClick={() => {
+            inputImage.current.click();
+          }}
+        >
+          Open local image
+        </button>
+        {image && (
+          /* show close btn when there is image */
+          <button
+            onClick={() => {
+              inputImage.current.value = "";
+              imageRef.current.src = "#";
+              URL.revokeObjectURL(image);
+              setImage(null);
+            }}
+          >
+            Close image
+          </button>
+        )}
+      </div>
     </div>
   );
 };

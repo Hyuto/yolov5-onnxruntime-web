@@ -1,4 +1,4 @@
-# YOLOv5 on onnxruntime-web
+# YOLOv5 on Browser with onnxruntime-web
 
 <p align="center">
   <img src="./sample.png" />
@@ -65,11 +65,13 @@ Use another YOLOv5 model.
    ```jsx
    ...
    // configs
-   const modelName = "yolov5*"; // change to new model name
+   const modelName = "yolov5*.onnx"; // change to new model name
+   const modelInputShape = [1, 3, 640, 640];
    ...
    ```
 5. Done! 😊
 
 ## Reference
 
-https://github.com/ultralytics/yolov5
+- https://github.com/ultralytics/yolov5
+- https://github.com/doleron/yolov5-opencv-cpp-python

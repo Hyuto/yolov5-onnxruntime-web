@@ -1,8 +1,8 @@
 /**
  * Perform Non Maximum Suppression to filter overlapping boxes
- * @param {Array[Object]} boxes boxes
- * @param {Number} overlapThresh overlapping threshold
- * @returns {Array[Object]} boxes
+ * @param {Array[Object]} boxes Boxes
+ * @param {Number} overlapThresh Overlapping / IoU threshold
+ * @returns {Array[Object]} Boxes
  */
 export const NMS = (boxes, overlapThresh) => {
   if (boxes.length === 0) {

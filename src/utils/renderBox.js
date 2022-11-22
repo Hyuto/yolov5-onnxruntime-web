@@ -1,11 +1,11 @@
 /**
  * Render prediction boxes
- * @param {React.MutableRefObject} canvasRef canvas tag reference
+ * @param {} canvas canvas tag reference
  * @param {Array[Object]} boxes boxes array
  * @param {Array} labels labels array
  */
-export const renderBoxes = (canvasRef, boxes, labels) => {
-  const ctx = canvasRef.current.getContext("2d");
+export const renderBoxes = (canvas, boxes, labels) => {
+  const ctx = canvas.getContext("2d");
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // clean canvas
 
   // font configs
