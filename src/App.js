@@ -13,11 +13,9 @@ const App = () => {
   const canvasRef = useRef(null);
 
   // Configs
-  const modelName = "yolov5n.onnx";
+  const modelName = "yolov5n-nms.onnx";
   const modelInputShape = [1, 3, 640, 640];
-  const confidenceThreshold = 0.25;
-  const classThreshold = 0.25;
-  const iouThreshold = 0.45; // overlap threshold
+  const classThreshold = 0.2;
 
   // wait until opencv.js initialized
   cv["onRuntimeInitialized"] = async () => {
@@ -63,9 +61,7 @@ const App = () => {
               imageRef.current,
               canvasRef.current,
               session,
-              confidenceThreshold,
               classThreshold,
-              iouThreshold,
               modelInputShape
             );
           }}

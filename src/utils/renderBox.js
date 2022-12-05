@@ -4,7 +4,7 @@
  * @param {Array[Object]} boxes boxes array
  * @param {Array} labels labels array
  */
-export const renderBoxes = (canvas, boxes, labels) => {
+export const renderBoxes = (canvas, boxes) => {
   const ctx = canvas.getContext("2d");
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // clean canvas
 
@@ -14,7 +14,7 @@ export const renderBoxes = (canvas, boxes, labels) => {
   ctx.textBaseline = "top";
 
   boxes.forEach((box) => {
-    const klass = labels[box.classId];
+    const klass = box.label;
     const score = (box.probability * 100).toFixed(1);
     const [x1, y1, width, height] = box.bounding;
 
