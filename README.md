@@ -38,11 +38,11 @@ used model : yolov5n-nms
 size       : 7.5 Mb
 ```
 
-### Use another model
+## Use another model
 
 > :warning: **Size Overload** : used YOLOv5 model in this repo is the smallest with size of 7.5 MB, so other models is definitely bigger than this which can cause memory problems on browser.
 
-**Original Model (Without NMS)**
+### Original Model (Without NMS)
 
 Use another YOLOv5 model.
 
@@ -74,11 +74,11 @@ Use another YOLOv5 model.
    ```
 5. Done! 😊
 
-**Modified Model (With NMS)**
+### Modified Model (With NMS)
 
 Modifying original YOLOv5 onnx model to perform Non Max Suppression algorithm inside the model.
 
-1. Export selected original YOLOv5 model to onnx, check how to deploy original model from step 1 to step 2.
+1. Export selected original YOLOv5 model to onnx, check how to [deploy original model](#original-model-without-nms) from step 1 to step 2.
 2. Download this script [add-nms.py](https://gist.github.com/Hyuto/28498fdee3ab56394e49d6b366229980) and install the dependencies
 3. Run `add-nms.py` and set `--model` argument to path of your selected YOLOv5 onnx model.
 
