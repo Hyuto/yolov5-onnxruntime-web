@@ -14,6 +14,7 @@ const App = () => {
 
   // Configs
   const modelName = "yolov5n-nms.onnx";
+  const withNMS = true;
   const modelInputShape = [1, 3, 640, 640];
   const classThreshold = 0.2;
 
@@ -62,7 +63,8 @@ const App = () => {
               canvasRef.current,
               session,
               classThreshold,
-              modelInputShape
+              modelInputShape,
+              withNMS
             );
           }}
         />
