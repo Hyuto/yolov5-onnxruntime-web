@@ -1,7 +1,6 @@
 import { Tensor } from "onnxruntime-web";
 import { renderBoxes } from "./renderBox";
 import { NMS } from "./nms";
-import labels from "./labels.json";
 
 /**
  * Detect Image
@@ -55,7 +54,7 @@ export const detectImage = async (image, canvas, session, classThreshold, inputS
     // filtering by thresholds
     if (score >= classThreshold) {
       boxes.push({
-        label: labels[label],
+        label: label,
         probability: score,
         confidence: confidence,
         bounding: [x - 0.5 * w, y - 0.5 * h, w, h],
