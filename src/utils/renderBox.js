@@ -2,9 +2,8 @@ import labels from "./labels.json";
 
 /**
  * Render prediction boxes
- * @param {} canvas canvas tag reference
+ * @param {HTMLCanvasElement} canvas canvas tag reference
  * @param {Array[Object]} boxes boxes array
- * @param {Array} labels labels array
  */
 export const renderBoxes = (canvas, boxes) => {
   const ctx = canvas.getContext("2d");

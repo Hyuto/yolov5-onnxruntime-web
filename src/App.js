@@ -12,10 +12,12 @@ const App = () => {
   const imageRef = useRef(null);
   const canvasRef = useRef(null);
 
-  // Configs
-  const modelName = "yolov5n-nms.onnx";
-  const withNMS = true;
+  // configs
+  const modelName = "yolov5n.onnx";
   const modelInputShape = [1, 3, 640, 640];
+  const topk = 100;
+  const iouThreshold = 0.45;
+  const confThreshold = 0.2;
   const classThreshold = 0.2;
 
   // wait until opencv.js initialized
@@ -23,6 +25,7 @@ const App = () => {
     // create session
     setLoading("Loading YOLOv5 model...");
     const yolov5 = await InferenceSession.create(`${process.env.PUBLIC_URL}/model/${modelName}`);
+    const nms = await InferenceSession.create(`${process.env.PUBLIC_URL}/model/nms-yolov5.onnx`);
 
     // warmup model
     setLoading("Warming up model...");
@@ -31,9 +34,11 @@ const App = () => {
       new Float32Array(modelInputShape.reduce((a, b) => a * b)),
       modelInputShape
     );
-    await yolov5.run({ images: tensor });
+    const config = new Tensor("float32", new Float32Array([100, 0.45, 0.2]));
+    const { output0 } = await yolov5.run({ images: tensor });
+    await nms.run({ detection: output0, config: config });
 
-    setSession(yolov5);
+    setSession({ net: yolov5, nms: nms });
     setLoading(null);
   };
 
@@ -62,9 +67,11 @@ const App = () => {
               imageRef.current,
               canvasRef.current,
               session,
+              topk,
+              iouThreshold,
+              confThreshold,
               classThreshold,
-              modelInputShape,
-              withNMS
+              modelInputShape
             );
           }}
         />
