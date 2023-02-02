@@ -34,7 +34,7 @@ const App = () => {
       new Float32Array(modelInputShape.reduce((a, b) => a * b)),
       modelInputShape
     );
-    const config = new Tensor("float32", new Float32Array([100, 0.45, 0.2]));
+    const config = new Tensor("float32", new Float32Array([topk, iouThreshold, confThreshold]));
     const { output0 } = await yolov5.run({ images: tensor });
     await nms.run({ detection: output0, config: config });
 

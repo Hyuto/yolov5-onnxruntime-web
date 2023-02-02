@@ -31,11 +31,11 @@ yarn build # Build for productions
 
 ## Model
 
-YOLOv5n model converted to onnx model and adding `NonMaxSuppression` operator.
+YOLOv5n model converted to onnx model.
 
 ```
-used model : yolov5n-nms
-size       : 7.5 Mb
+used model : yolov5n
+size       : 7.6 Mb
 ```
 
 ## Use another model
