@@ -1,0 +1,19 @@
+{
+  "files": {
+    "main.css": "/yolov5-onnxruntime-web/static/css/main.86524d2f.css",
+    "main.js": "/yolov5-onnxruntime-web/static/js/main.0089cf7a.js",
+    "static/js/787.fa5adb88.chunk.js": "/yolov5-onnxruntime-web/static/js/787.fa5adb88.chunk.js",
+    "static/js/ort-wasm-simd.wasm": "/yolov5-onnxruntime-web/static/js/ort-wasm-simd.wasm",
+    "static/js/ort-wasm-simd-threaded.wasm": "/yolov5-onnxruntime-web/static/js/ort-wasm-simd-threaded.wasm",
+    "static/js/ort-wasm.wasm": "/yolov5-onnxruntime-web/static/js/ort-wasm.wasm",
+    "static/js/ort-wasm-threaded.wasm": "/yolov5-onnxruntime-web/static/js/ort-wasm-threaded.wasm",
+    "index.html": "/yolov5-onnxruntime-web/index.html",
+    "main.86524d2f.css.map": "/yolov5-onnxruntime-web/static/css/main.86524d2f.css.map",
+    "main.0089cf7a.js.map": "/yolov5-onnxruntime-web/static/js/main.0089cf7a.js.map",
+    "787.fa5adb88.chunk.js.map": "/yolov5-onnxruntime-web/static/js/787.fa5adb88.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.86524d2f.css",
+    "static/js/main.0089cf7a.js"
+  ]
+}
