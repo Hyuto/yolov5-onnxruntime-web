@@ -1,22 +1,18 @@
 {
   "name": "yolov5-onnxruntime-web",
+  "homepage": "https://hyuto.github.io/yolov5-onnxruntime-web/",
   "version": "1.0.0",
   "dependencies": {
-    "@testing-library/jest-dom": "^5.14.1",
-    "@testing-library/react": "^13.0.0",
-    "@testing-library/user-event": "^13.2.1",
-    "onnxruntime-web": "^1.11.0",
+    "onnxruntime-web": "^1.14.0",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.0"
   },
   "scripts": {
-    "start": "yarn setup && react-scripts start",
-    "build": "yarn setup && react-scripts build",
-    "setup": "node ort-wasm-handler.js",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "start": "craco start",
+    "build": "craco build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
@@ -50,5 +46,10 @@
   },
   "bugs": {
     "url": "https://github.com/Hyuto/yolov5-onnxruntime-web/issues"
+  },
+  "devDependencies": {
+    "@craco/craco": "^7.1.0",
+    "copy-webpack-plugin": "^11.0.0",
+    "gh-pages": "^5.0.0"
   }
 }

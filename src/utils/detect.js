@@ -48,15 +48,15 @@ export const detectImage = async (
 
   const tensor = new Tensor("float32", input.data32F, inputShape); // to ort.Tensor
   const config = new Tensor("float32", new Float32Array([topk, iouThreshold, confThreshold])); // nms config tensor
+  const start = Date.now();
   const { output0 } = await session.net.run({ images: tensor }); // run session and get output layer
   const { selected_idx } = await session.nms.run({ detection: output0, config: config }); // get selected idx from nms
+  console.log(Date.now() - start);
 
   const boxes = [];
 
   // looping through output
-  for (let idx = 0; idx < output0.dims[1]; idx++) {
-    if (!selected_idx.data.includes(idx)) continue; // skip if index isn't selected
-
+  selected_idx.data.forEach((idx) => {
     const data = output0.data.slice(idx * output0.dims[2], (idx + 1) * output0.dims[2]); // get rows
     const [x, y, w, h] = data.slice(0, 4);
     const confidence = data[4]; // detection confidence
@@ -77,7 +77,7 @@ export const detectImage = async (
           Math.floor(h * yRatio), // height
         ],
       });
-  }
+  });
 
   renderBoxes(canvas, boxes); // Draw boxes
 

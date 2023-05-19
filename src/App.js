@@ -2,11 +2,12 @@ import React, { useState, useRef } from "react";
 import { Tensor, InferenceSession } from "onnxruntime-web";
 import Loader from "./components/loader";
 import { detectImage } from "./utils/detect";
+import { download } from "./utils/download";
 import "./style/App.css";
 
 const App = () => {
   const [session, setSession] = useState(null);
-  const [loading, setLoading] = useState("Loading OpenCV.js...");
+  const [loading, setLoading] = useState({ text: "Loading OpenCV.js", progress: null });
   const [image, setImage] = useState(null);
   const inputImage = useRef(null);
   const imageRef = useRef(null);
@@ -22,13 +23,22 @@ const App = () => {
 
   // wait until opencv.js initialized
   cv["onRuntimeInitialized"] = async () => {
+    const baseModelURL = `${process.env.PUBLIC_URL}/model`;
+
     // create session
-    setLoading("Loading YOLOv5 model...");
-    const yolov5 = await InferenceSession.create(`${process.env.PUBLIC_URL}/model/${modelName}`);
-    const nms = await InferenceSession.create(`${process.env.PUBLIC_URL}/model/nms-yolov5.onnx`);
+    const arrBufNet = await download(
+      `${baseModelURL}/${modelName}`, // url
+      ["Loading YOLOv5 model", setLoading] // logger
+    ); // get model arraybuffer
+    const yolov5 = await InferenceSession.create(arrBufNet);
+    const arrBufNMS = await download(
+      `${baseModelURL}/nms-yolov5.onnx`, // url
+      ["Loading NMS model", setLoading] // logger
+    ); // get nms model arraybuffer
+    const nms = await InferenceSession.create(arrBufNMS);
 
     // warmup model
-    setLoading("Warming up model...");
+    setLoading({ text: "Warming up model...", progress: null });
     const tensor = new Tensor(
       "float32",
       new Float32Array(modelInputShape.reduce((a, b) => a * b)),
@@ -44,7 +54,11 @@ const App = () => {
 
   return (
     <div className="App">
-      {loading && <Loader>{loading}</Loader>}
+      {loading && (
+        <Loader>
+          {loading.progress ? `${loading.text} - ${loading.progress}%` : loading.text}
+        </Loader>
+      )}
       <div className="header">
         <h1>YOLOv5 Object Detection App</h1>
         <p>
